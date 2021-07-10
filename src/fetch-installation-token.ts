@@ -1,5 +1,6 @@
 import { context, getOctokit } from "@actions/github";
 import { createAppAuth } from "@octokit/auth-app";
+import { request } from "@octokit/request";
 
 export const fetchInstallationToken = async ({
   appId,
@@ -12,7 +13,13 @@ export const fetchInstallationToken = async ({
   privateKey: string;
   repo: string;
 }>): Promise<string> => {
-  const app = createAppAuth({ appId, privateKey });
+  const app = createAppAuth({
+    appId: appId,
+    privateKey: privateKey,
+    request: request.defaults({
+      baseUrl: process.env['GITHUB_API_URL'] || 'https://api.github.com'
+    })
+  });
   const authApp = await app({ type: "app" });
   const octokit = getOctokit(authApp.token);
   const {
